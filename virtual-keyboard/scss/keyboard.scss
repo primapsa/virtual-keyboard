@@ -36,8 +36,13 @@ body {
      justify-content: center;
  
      .functional {
-         display: flex;
-         
+         display: flex;         
+     }
+     & > div{
+         display: none;
+     }
+     &>div.active {
+         display: block;
      }
  }
  .pressed {
@@ -74,16 +79,16 @@ body {
      width: 100%;
      justify-content: space-between;
  }
- .enter, .capslock, .shiftleft{
+ .Enter, .CapsLock, .ShiftLeft, .ShiftRight {
      width: 12.4%;
  }
- .backspace {
+ .Backspace {
      width: 11%;
  }
- .tab, .del, .controlleft, .controlright {
+ .Tab, .del, .ControlLeft, .ControlRight {
      width: 8%;
  }
- .space {
+ .Space {
      width: 42%;
  }
  

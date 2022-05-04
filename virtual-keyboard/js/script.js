@@ -428,15 +428,13 @@ class Keyboard {
         const keyName = Object.keys(node)[0];
         const keyLangs = Object.keys(node[keyName]);
         let keyInner = '';
-        keyLangs.forEach((k)=>{
-          keyInner += `<div class="${k} lower">${node[keyName][k].lower}</div>
-          <div class="${k} upper">${node[keyName][k].upper}</div>`;
-        })
-        
-        // for (const lang of keyLangs) {
-        //   keyInner += `<div class="${lang} lower">${keyLangs[lang].lower}</div>
-        //                 <div class="${lang} upper">${keyLangs[lang].upper}</div>`;
-        // }
+        keyLangs.forEach((k) => {
+          const initialLanguage = this.getLanguage();
+          if (initialLanguage === k) {
+            keyInner += `<div class="${k} active lower">${node[keyName][k].lower}</div>`;
+          }
+          keyInner += `<div class="${k} upper">${node[keyName][k].upper}</div>`;
+        });
         content += `<div class="key ${keyName} alphabet">${keyInner}</div>`;
       });
       keysLine += `<div class="keyboard-line">${content}</div>`;
@@ -446,7 +444,7 @@ class Keyboard {
   }
 
   getLanguage() {
-    return this.language;
+    return this.language || 'en';
   }
 }
 const keyboard = new Keyboard();
