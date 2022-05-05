@@ -405,7 +405,7 @@ class Keyboard {
     this.isShift = false;
     this.isCapsLock = false;
     this.isAlt = false;
-    this.isControl = false;   
+    this.isControl = false;
     this.controls = controls;
     this.printKeyValue = this.printKeyValue.bind(this);
     this.keyCase = 'lower';
@@ -465,14 +465,12 @@ class Keyboard {
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && this.isControl) return;
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && !this.isControl) this.isControl = true;
     if ((keyName === 'CapsLock') && this.isCapsLock) return;
-   
 
     if (this.isControl && this.isAlt) {
       this.toggleKeyLanguage();
     }
 
     if (keyName === 'ShiftLeft' || keyName === 'ShiftRight') {
-      
       this.toggleKeyCase();
     }
 
@@ -506,8 +504,7 @@ class Keyboard {
       this.isControl = false;
     }
     if (keyName === 'CapsLock') {
-      this.isCapsLock = false;      
-     
+      this.isCapsLock = false;
     }
     keyPressed.classList.remove('pressed');
   }
@@ -520,7 +517,6 @@ class Keyboard {
   }
 
   printKeyValue(node) {
-   
     const textarea = document.querySelector('.keyboard__textarea');
     const keyName = node.classList[1];
     let keyValue = '';
@@ -542,7 +538,6 @@ class Keyboard {
   }
 
   toggleKeyCase() {
-    // if (!this.isShift) return;
     const activeKeys = document.querySelectorAll('.key');
     activeKeys.forEach((key) => {
       Array.from(key.children).forEach((child) => {
@@ -580,120 +575,6 @@ class Keyboard {
   getShift() {
     return this.isShift;
   }
-
-  
 }
 const keyboard = new Keyboard(CONFIG, CONTROLS);
 keyboard.renderKeyboard();
-
-
-// const domContent = keyboard.initialDom(config);
-// const body = document.querySelector('body');
-// body.insertAdjacentHTML('afterbegin', domContent);
-
-// const DOUBLE_CONTROLS = [16,17,18];
-
-// let body = document.querySelector("body");
-// generateContent();
-
-// let keyboard = document.querySelector(".keyboard__board");
-
-// document.addEventListener('keydown', keyPressDown);
-// document.addEventListener('keyup', keyPressUp);
-// keyboard.addEventListener('mousedown', mouseKeyDown);
-// keyboard.addEventListener('mouseup', mouseKeyUp);
-// function backlightKey(node){
-
-// }
-
-// function mouseKeyDown(e){
-//     let target = e.target.closest(".key");
-//     if(!target) return;
-//     target.classList.add('pressed');
-//     printText(target);
-// }
-// function mouseKeyUp(e){
-//     let target = e.target.closest(".key");
-//     if(!target) return;
-//     target.classList.remove('pressed');
-
-// }
-// function printText(node) {
-//     let textarea = document.querySelector('.keyboard__textarea');
-//     let isShiftPresed = getShiftStatus();
-//     let nodeValue = node.innerText;
-//     if(node.classList.contains("key-code-32")){
-//         nodeValue = " ";
-
-//     }
-//     if(node.classList.contains("tab")){
-//         nodeValue = "    ";
-
-//     }
-//     if(node.classList.contains("alphabet") ||
-// node.classList.contains("space") || node.classList.contains("tab")){
-//        textarea.value += nodeValue;
-//     }
-
-// }
-// function getShiftStatus(){
-
-// }
-// function keyPressDown(e){
-//     let keyCode = e.keyCode;
-//     let keyCodeAdditional = '';
-//     keyCode = Number(keyCode);
-//     if(!(keyCode >= 8 && keyCode <= 220)) return;
-//     e.preventDefault();
-//     if(DOUBLE_CONTROLS.includes(keyCode)){
-//         keyCodeAdditional = '.'+e.code.toLowerCase();
-//         console.log(`.key-code-${keyCode}${keyCodeAdditional}`)
-//     }
-//     let keyPressed = body.querySelector(`.key-code-${keyCode}${keyCodeAdditional}`);
-
-//     if(keyPressed) {
-//         printText(keyPressed);
-//         keyPressed.classList.add('pressed');
-//     }
-// }
-// function keyPressUp(e){
-//     let keyCode = e.keyCode;
-//     let keyCodeAdditional = '';
-//     keyCode = Number(keyCode);
-//     if(!(keyCode >= 8 && keyCode <= 220)) return;
-//     if(DOUBLE_CONTROLS.includes(keyCode)){
-//         keyCodeAdditional = '.'+e.code.toLowerCase();
-//         console.log(`.key-code-${keyCode}${keyCodeAdditional}`)
-//     }
-//     let keyPressed = body.querySelector(`.key-code-${keyCode}${keyCodeAdditional}`);
-//     if(keyPressed)
-//     if(keyPressed) keyPressed.classList.remove('pressed');
-// }
-
-// function generateContent() {
-//   body.insertAdjacentHTML("afterbegin", innerBody);
-
-//   let currentLanguage = getCurrentLanguage();
-//   if (currentLanguage == "en") {
-
-//   }
-//   initialLanguage(LANG_ENG);
-// }
-// function getCurrentLanguage() {
-//   //local storage
-//   return "en";
-// }
-// function initialLanguage(obj) {
-//   let keys = document.querySelectorAll(".alphabet");
-//   keys.forEach((key) => {
-//     let keycode = key.classList[1];
-//     keycode = keycode.split('-')[2];
-//     let value = obj[keycode];
-
-//     if( key.classList.contains('functional')){
-//        if(key.lastElementChild) key.lastElementChild.innerHTML =  value?.main || '';
-//        if(key.firstElementChild)key.firstElementChild.innerHTML = value?.extra || '';
-//     }else{
-//     key.innerHTML = value || 'null';  }
-//   });
-// }
