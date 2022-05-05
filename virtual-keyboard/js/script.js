@@ -395,25 +395,10 @@ const CONFIG = [
     },
   ],
 ];
-//   <div class="keyboard-line">
-//         <div class="key key-code-16 control shiftleft">Shift</div>
-//         <div class="key key-code-226 alphabet intlbackslash"></div>
-//         <div class="key key-code-90 alphabet"></div>
-//         <div class="key key-code-88 alphabet"></div>
-//         <div class="key key-code-67 alphabet"></div>
-//         <div class="key key-code-86 alphabet"></div>
-//         <div class="key key-code-66 alphabet"></div>
-//         <div class="key key-code-78 alphabet"></div>
-//         <div class="key key-code-77 alphabet"></div>
-//         <div class="key key-code-188 alphabet comma"></div>
-//         <div class="key key-code-190 alphabet period"></div>
-//         <div class="key key-code-191 alphabet slash"></div>
-//         <div class="key key-code-38 control arrowup">&uarr;</div>
-//         <div class="key key-code-16 control shiftright">Shift</div>
-//       </div>
+
 const CONTROLS = ['Tab', 'CapsLock', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'MetaLeft', 'AltLeft', 'Space', 'AltRight', 'ControlRight', 'Backspace', 'Enter', 'Delete'];
 class Keyboard {
-  constructor(content) {
+  constructor(content, controls) {
     this.current = null;
     this.language = localStorage.getItem('lang') || 'en';
     this.domConfig = content;
@@ -421,7 +406,7 @@ class Keyboard {
     this.isCapsLock = false;
     this.isAlt = false;
     this.isControl = false;   
-    this.controls = [];
+    this.controls = controls;
     this.printKeyValue = this.printKeyValue.bind(this);
     this.keyCase = 'lower';
   }
@@ -493,6 +478,7 @@ class Keyboard {
 
     if (keyName === 'CapsLock') {
       this.isCapsLock = true;
+      keyPressed.classList.toggle('on');
       this.toggleKeyCase();
     }
     this.printKeyValue(keyPressed);
@@ -520,7 +506,7 @@ class Keyboard {
       this.isControl = false;
     }
     if (keyName === 'CapsLock') {
-      this.isCapsLock = false;
+      this.isCapsLock = false;      
      
     }
     keyPressed.classList.remove('pressed');
@@ -534,11 +520,11 @@ class Keyboard {
   }
 
   printKeyValue(node) {
-    const controls = this.getControls();
+   
     const textarea = document.querySelector('.keyboard__textarea');
     const keyName = node.classList[1];
     let keyValue = '';
-    if (controls.includes(keyName)) {
+    if (this.controls.includes(keyName)) {
       // controls; dont print in textarea
       if (keyName === 'Space') {
         keyValue = ' ';
@@ -595,17 +581,11 @@ class Keyboard {
     return this.isShift;
   }
 
-  setControls(arr) {
-    this.controls = arr;
-  }
-
-  getControls() {
-    return this.controls;
-  }
+  
 }
-const keyboard = new Keyboard(CONFIG);
+const keyboard = new Keyboard(CONFIG, CONTROLS);
 keyboard.renderKeyboard();
-keyboard.setControls(CONTROLS);
+
 
 // const domContent = keyboard.initialDom(config);
 // const body = document.querySelector('body');
