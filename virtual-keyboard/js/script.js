@@ -419,12 +419,16 @@ class Keyboard {
     this.domConfig = content;
     this.isShift = false;
     this.isCapsLock = false;
+    this.isAlt = false;
+    this.isControl = false;
     this.controls = [];
     this.printKeyValue = this.printKeyValue.bind(this);
+    this.keyCase = 'lower';
   }
 
   initialDom() {
     let keysLine = '';
+    localStorage.setItem('lang', this.language)
     this.domConfig.forEach((line) => {
       let content = '';
       line.forEach((node) => {
@@ -435,6 +439,8 @@ class Keyboard {
           const initialLanguage = this.getLanguage();
           if (initialLanguage === k) {
             keyInner += `<div class="${k} active lower">${node[keyName][k].lower}</div>`;
+          }else{
+            keyInner += `<div class="${k} lower">${node[keyName][k].lower}</div>`;
           }
           keyInner += `<div class="${k} upper">${node[keyName][k].upper}</div>`;
         });
@@ -448,9 +454,13 @@ class Keyboard {
   }
 
   getLanguage() {
-    return this.language || 'en';
+    return localStorage.getItem('lang') || 'en';
   }
-
+toggleLanguage() {
+ let language = localStorage.getItem('lang');
+ language = language === 'en' ? 'ru' : 'en';
+ localStorage.setItem('lang', language);
+}
   keyDown(e) {
     let { keyCode } = e;
     keyCode = Number(keyCode);
@@ -458,10 +468,30 @@ class Keyboard {
     e.preventDefault();
     const keyPressed = document.querySelector(`.${e.code}`);
 
-    if (keyPressed) {
-      this.printKeyValue(keyPressed);
-      keyPressed.classList.add('pressed');
+    if (!keyPressed) return;
+    const keyName = keyPressed.classList[1];
+
+    if ((keyName === 'ShiftLeft' || keyName === 'ShiftRight') && this.isShift) return;
+    if ((keyName === 'ShiftLeft' || keyName === 'ShiftRight') && !this.isShift) this.isShift = true;
+    if ((keyName === 'AltLeft' || keyName === 'AltRight') && this.isAlt) return;
+    if ((keyName === 'AltLeft' || keyName === 'AltRight') && !this.isAlt) this.isAlt = true;
+    if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && this.isControl) return;
+    if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && !this.isControl) this.isControl = true;
+
+    if (this.isControl && this.isAlt) {
+      this.toggleKeyLanguage();
     }
+
+    if (keyName === 'ShiftLeft' || keyName === 'ShiftRight') {
+      this.isShift = !this.isShift;
+      this.toggleKeyCase();
+    }
+
+    if (keyName === 'CapsLock') {
+      this.toggleKeyCase();
+    }
+    this.printKeyValue(keyPressed);
+    keyPressed.classList.add('pressed');
   }
 
   keyUp(e) {
@@ -470,16 +500,28 @@ class Keyboard {
     if (!(keyCode >= 8 && keyCode <= 220)) return;
     e.preventDefault();
     const keyPressed = document.querySelector(`.${e.code}`);
-    if (keyPressed) {
-      keyPressed.classList.remove('pressed');
+
+    if (!keyPressed) return;
+    const keyName = keyPressed.classList[1];
+
+    if ((keyName === 'ShiftLeft' || keyName === 'ShiftRight')) {
+      this.isShift = false;
+      this.toggleKeyCase();
     }
+    if ((keyName === 'AltLeft' || keyName === 'AltRight')) {
+      this.isAlt = false;
+    }
+    if ((keyName === 'ControlLeft' || keyName === 'ControlRight')) {
+      this.isControl = false;
+    }
+    keyPressed.classList.remove('pressed');
   }
 
   renderKeyboard() {
     this.initialDom();
     const body = document.querySelector('body');
     document.addEventListener('keydown', this.keyDown.bind(this));
-    document.addEventListener('keyup', this.keyUp);
+    document.addEventListener('keyup', this.keyUp.bind(this));
   }
 
   printKeyValue(node) {
@@ -498,29 +540,42 @@ class Keyboard {
       if (keyName === 'Enter') {
         keyValue = '\n';
       }
-      if (keyName === 'ShiftLeft' || keyName === 'ShiftRight') {
-        this.setShift();
-        this.keyToUpperCase();
-      }
     } else {
-      keyValue = node.firstElementChild.innerText;
+      keyValue = Array.from(node.children).filter((el) => el.classList.contains('active'))[0].innerText;
     }
     textarea.value += keyValue;
   }
 
-  keyToUpperCase() {
-    if (!this.isShift) return;
-  
-    const currentKey = document.querySelector('.key .active');
-   
-    const currentLanguage = this.getLanguage();
+  toggleKeyCase() {
+    // if (!this.isShift) return;
     const activeKeys = document.querySelectorAll('.key');
-
     activeKeys.forEach((key) => {
       Array.from(key.children).forEach((child) => {
         if (child.classList.contains(this.getLanguage())) { child.classList.toggle('active'); }
       });
     });
+  }
+
+  toggleKeyLanguage() {
+    const activeKeys = document.querySelectorAll('.key');
+    activeKeys.forEach((key) => {
+      let toggleNode = null;
+      Array.from(key.children).forEach((child) => {
+        // console.log(child.classList.contains(this.keyCase))
+        if (child.classList.contains(this.keyCase)
+        && !child.classList.contains(this.getLanguage())) {
+          toggleNode = child;
+          //console.log(this.keyCase)
+        }
+        child.classList.remove('active');
+      });
+      toggleNode.classList.add('active');
+    });
+    this.toggleLanguage();
+  }
+
+  toggleCase() {
+    this.keyCase = this.keyCase === 'lower' ? 'upper' : 'lower';
   }
 
   setShift() {
