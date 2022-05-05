@@ -105,3 +105,18 @@ body {
 .Space {
   width: 42%;
 }
+
+.CapsLock {
+  position: relative;
+}
+
+.CapsLock.on::after {
+  content: " ";
+  position: absolute;
+  left: .3rem;
+  top: .3rem;
+  width: .5rem;
+  height: .5rem;
+  border-radius: 100%;
+  background-color: chartreuse;
+}
