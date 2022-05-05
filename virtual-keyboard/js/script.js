@@ -1,4 +1,4 @@
-const config = [
+const CONFIG = [
   [
     {
       Backquote: {
@@ -411,18 +411,21 @@ const config = [
 //         <div class="key key-code-38 control arrowup">&uarr;</div>
 //         <div class="key key-code-16 control shiftright">Shift</div>
 //       </div>
-
+const CONTROLS = ['Tab', 'CapsLock', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'MetaLeft', 'AltLeft', 'Space', 'AltRight', 'ControlRight', 'Backspace', 'Enter', 'Delete'];
 class Keyboard {
-  constructor() {
+  constructor(content) {
     this.current = null;
     this.language = localStorage.getItem('lang') || 'en';
+    this.domConfig = content;
+    this.isShift = false;
+    this.isCapsLock = false;
+    this.controls = [];
+    this.printKeyValue = this.printKeyValue.bind(this);
   }
 
-  initialDom(domContent) {
-    if (!Array.isArray(domContent) || !domContent.length) { throw new Error('Invalin input data'); }
+  initialDom() {
     let keysLine = '';
-    this.current = 1;
-    domContent.forEach((line) => {
+    this.domConfig.forEach((line) => {
       let content = '';
       line.forEach((node) => {
         const keyName = Object.keys(node)[0];
@@ -440,17 +443,109 @@ class Keyboard {
       keysLine += `<div class="keyboard-line">${content}</div>`;
     });
     keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea"></textarea></div><div class="keyboard__board">${keysLine}</div></div></div></div>`;
-    return keysLine;
+    // return keysLine;
+    document.body.insertAdjacentHTML('afterbegin', keysLine);
   }
 
   getLanguage() {
     return this.language || 'en';
   }
+
+  keyDown(e) {
+    let { keyCode } = e;
+    keyCode = Number(keyCode);
+    if (!(keyCode >= 8 && keyCode <= 220)) return;
+    e.preventDefault();
+    const keyPressed = document.querySelector(`.${e.code}`);
+
+    if (keyPressed) {
+      this.printKeyValue(keyPressed);
+      keyPressed.classList.add('pressed');
+    }
+  }
+
+  keyUp(e) {
+    let { keyCode } = e;
+    keyCode = Number(keyCode);
+    if (!(keyCode >= 8 && keyCode <= 220)) return;
+    e.preventDefault();
+    const keyPressed = document.querySelector(`.${e.code}`);
+    if (keyPressed) {
+      keyPressed.classList.remove('pressed');
+    }
+  }
+
+  renderKeyboard() {
+    this.initialDom();
+    const body = document.querySelector('body');
+    document.addEventListener('keydown', this.keyDown.bind(this));
+    document.addEventListener('keyup', this.keyUp);
+  }
+
+  printKeyValue(node) {
+    const controls = this.getControls();
+    const textarea = document.querySelector('.keyboard__textarea');
+    const keyName = node.classList[1];
+    let keyValue = '';
+    if (controls.includes(keyName)) {
+      // controls; dont print in textarea
+      if (keyName === 'Space') {
+        keyValue = ' ';
+      }
+      if (keyName === 'Tab') {
+        keyValue = '    ';
+      }
+      if (keyName === 'Enter') {
+        keyValue = '\n';
+      }
+      if (keyName === 'ShiftLeft' || keyName === 'ShiftRight') {
+        this.setShift();
+        this.keyToUpperCase();
+      }
+    } else {
+      keyValue = node.firstElementChild.innerText;
+    }
+    textarea.value += keyValue;
+  }
+
+  keyToUpperCase() {
+    if (!this.isShift) return;
+  
+    const currentKey = document.querySelector('.key .active');
+   
+    const currentLanguage = this.getLanguage();
+    const activeKeys = document.querySelectorAll('.key');
+
+    activeKeys.forEach((key) => {
+      Array.from(key.children).forEach((child) => {
+        if (child.classList.contains(this.getLanguage())) { child.classList.toggle('active'); }
+      });
+    });
+  }
+
+  setShift() {
+    this.isShift = !this.isShift;
+  }
+
+  getShift() {
+    return this.isShift;
+  }
+
+  setControls(arr) {
+    this.controls = arr;
+  }
+
+  getControls() {
+    return this.controls;
+  }
 }
-const keyboard = new Keyboard();
-const domContent = keyboard.initialDom(config);
-const body = document.querySelector('body');
-body.insertAdjacentHTML('afterbegin', domContent);
+const keyboard = new Keyboard(CONFIG);
+keyboard.renderKeyboard();
+keyboard.setControls(CONTROLS);
+
+// const domContent = keyboard.initialDom(config);
+// const body = document.querySelector('body');
+// body.insertAdjacentHTML('afterbegin', domContent);
 
 // const DOUBLE_CONTROLS = [16,17,18];
 
