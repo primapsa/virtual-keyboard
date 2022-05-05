@@ -399,7 +399,7 @@ const CONFIG = [
 const CONTROLS = ['Tab', 'CapsLock', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'MetaLeft', 'AltLeft', 'Space', 'AltRight', 'ControlRight', 'Backspace', 'Enter', 'Delete'];
 class Keyboard {
   constructor(content, controls) {
-    this.current = null;
+    this.mouseTarget = null;
     this.language = localStorage.getItem('lang') || 'en';
     this.domConfig = content;
     this.isShift = false;
@@ -476,8 +476,7 @@ class Keyboard {
 
     if (keyName === 'CapsLock') {
       this.isCapsLock = true;
-      keyPressed.classList.toggle('on');
-      this.toggleKeyCase();
+      this.toggleCapsCase();
     }
     this.printKeyValue(keyPressed);
     keyPressed.classList.add('pressed');
@@ -509,11 +508,47 @@ class Keyboard {
     keyPressed.classList.remove('pressed');
   }
 
+  mouseDown(e) {
+    const target = e.target.closest('.key');
+    this.mouseTarget = target;
+    if (!target) return;
+    target.classList.add('pressed');
+    const targetName = target.classList[1];
+    if (targetName === 'CapsLock' && !this.isCapsLock) {
+      this.toggleCapsCase();
+    }
+    if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && !this.isShift) {
+      console.log(1);
+      this.isShift = true;
+      this.toggleKeyCase();
+    }
+    this.printKeyValue(target);
+  }
+
+  mouseUp(e) {
+    const target = this.mouseTarget;
+    this.mouseTarget = null;
+    if (!target) return;
+    console.log(target);
+    const targetName = target.classList[1];
+    const keys = document.querySelectorAll('.pressed');
+    if (!keys) return;
+    keys.forEach((key) => key.classList.remove('pressed'));
+    if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && !target.classList.contains('pressed') && this.isShift) {
+      this.toggleKeyCase();
+      this.isShift = false;
+    }
+    // const target = e.target.closest('.key');
+    // if (!target) return;
+    // target.classList.remove('pressed');
+  }
+
   renderKeyboard() {
     this.initialDom();
-    const body = document.querySelector('body');
     document.addEventListener('keydown', this.keyDown.bind(this));
     document.addEventListener('keyup', this.keyUp.bind(this));
+    document.addEventListener('mousedown', this.mouseDown.bind(this));
+    document.addEventListener('mouseup', this.mouseUp.bind(this));
   }
 
   printKeyValue(node) {
@@ -537,12 +572,21 @@ class Keyboard {
     textarea.value += keyValue;
   }
 
-  toggleKeyCase() {
-    const activeKeys = document.querySelectorAll('.key');
+  toggleKeyCase(node = document) {
+    const activeKeys = node.querySelectorAll('.key');
     activeKeys.forEach((key) => {
       Array.from(key.children).forEach((child) => {
         if (child.classList.contains(this.getLanguage())) { child.classList.toggle('active'); }
       });
+    });
+  }
+
+  toggleCapsCase() {
+    document.querySelector('.CapsLock').classList.toggle('on');
+
+    const rows = document.querySelectorAll('.keyboard-line');
+    rows.forEach((row, index) => {
+      if (index > 0) this.toggleKeyCase(row);
     });
   }
 
