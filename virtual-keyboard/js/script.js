@@ -420,7 +420,7 @@ class Keyboard {
     this.isShift = false;
     this.isCapsLock = false;
     this.isAlt = false;
-    this.isControl = false;
+    this.isControl = false;   
     this.controls = [];
     this.printKeyValue = this.printKeyValue.bind(this);
     this.keyCase = 'lower';
@@ -428,7 +428,7 @@ class Keyboard {
 
   initialDom() {
     let keysLine = '';
-    localStorage.setItem('lang', this.language)
+    localStorage.setItem('lang', this.language);
     this.domConfig.forEach((line) => {
       let content = '';
       line.forEach((node) => {
@@ -439,7 +439,7 @@ class Keyboard {
           const initialLanguage = this.getLanguage();
           if (initialLanguage === k) {
             keyInner += `<div class="${k} active lower">${node[keyName][k].lower}</div>`;
-          }else{
+          } else {
             keyInner += `<div class="${k} lower">${node[keyName][k].lower}</div>`;
           }
           keyInner += `<div class="${k} upper">${node[keyName][k].upper}</div>`;
@@ -456,11 +456,13 @@ class Keyboard {
   getLanguage() {
     return localStorage.getItem('lang') || 'en';
   }
-toggleLanguage() {
- let language = localStorage.getItem('lang');
- language = language === 'en' ? 'ru' : 'en';
- localStorage.setItem('lang', language);
-}
+
+  toggleLanguage() {
+    let language = localStorage.getItem('lang');
+    language = language === 'en' ? 'ru' : 'en';
+    localStorage.setItem('lang', language);
+  }
+
   keyDown(e) {
     let { keyCode } = e;
     keyCode = Number(keyCode);
@@ -477,17 +479,20 @@ toggleLanguage() {
     if ((keyName === 'AltLeft' || keyName === 'AltRight') && !this.isAlt) this.isAlt = true;
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && this.isControl) return;
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && !this.isControl) this.isControl = true;
+    if ((keyName === 'CapsLock') && this.isCapsLock) return;
+   
 
     if (this.isControl && this.isAlt) {
       this.toggleKeyLanguage();
     }
 
     if (keyName === 'ShiftLeft' || keyName === 'ShiftRight') {
-      this.isShift = !this.isShift;
+      
       this.toggleKeyCase();
     }
 
     if (keyName === 'CapsLock') {
+      this.isCapsLock = true;
       this.toggleKeyCase();
     }
     this.printKeyValue(keyPressed);
@@ -513,6 +518,10 @@ toggleLanguage() {
     }
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight')) {
       this.isControl = false;
+    }
+    if (keyName === 'CapsLock') {
+      this.isCapsLock = false;
+     
     }
     keyPressed.classList.remove('pressed');
   }
@@ -565,7 +574,7 @@ toggleLanguage() {
         if (child.classList.contains(this.keyCase)
         && !child.classList.contains(this.getLanguage())) {
           toggleNode = child;
-          //console.log(this.keyCase)
+          // console.log(this.keyCase)
         }
         child.classList.remove('active');
       });
