@@ -409,6 +409,7 @@ class Keyboard {
     this.controls = controls;
     this.printKeyValue = this.printKeyValue.bind(this);
     this.keyCase = 'lower';
+    this.cursor = 0;
   }
 
   initialDom() {
@@ -509,18 +510,30 @@ class Keyboard {
   }
 
   mouseDown(e) {
+    if (e.target.className === 'keyboard__textarea') {
+      console.log(e.target.selectionStart);
+      e.target.selectionStart = 10;
+      e.target.selectionEnd = 10;
+    }
     const target = e.target.closest('.key');
-    this.mouseTarget = target;
     if (!target) return;
+    if (target.classList.contains('pressed')) return;
+    this.mouseTarget = target;
+
     target.classList.add('pressed');
     const targetName = target.classList[1];
     if (targetName === 'CapsLock' && !this.isCapsLock) {
       this.toggleCapsCase();
     }
     if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && !this.isShift) {
-      console.log(1);
       this.isShift = true;
       this.toggleKeyCase();
+    }
+    if ((targetName === 'ControlLeft' || targetName === 'ControlRight') && !this.isControl) this.isControl = true;
+    if ((targetName === 'AltLeft' || targetName === 'AltRight') && !this.isAlt) this.isAlt = true;
+    // console.log(this.isControl,this.isAlt)
+    if (this.isControl && this.isAlt) {
+      this.toggleKeyLanguage();
     }
     this.printKeyValue(target);
   }
@@ -531,13 +544,16 @@ class Keyboard {
     if (!target) return;
     console.log(target);
     const targetName = target.classList[1];
-    const keys = document.querySelectorAll('.pressed');
-    if (!keys) return;
-    keys.forEach((key) => key.classList.remove('pressed'));
-    if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && !target.classList.contains('pressed') && this.isShift) {
+    target.classList.remove('pressed');
+    // const keys = document.querySelectorAll('.pressed');
+    // if (!keys) return;
+    // keys.forEach((key) => key.classList.remove('pressed'));
+    if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && this.isShift) {
       this.toggleKeyCase();
       this.isShift = false;
     }
+    if ((targetName === 'ControlLeft' || targetName === 'ControlRight') && this.isControl) this.isControl = false;
+    if ((targetName === 'AltLeft' || targetName === 'AltRight') && this.isAlt) this.isAlt = false;
     // const target = e.target.closest('.key');
     // if (!target) return;
     // target.classList.remove('pressed');
@@ -569,7 +585,17 @@ class Keyboard {
     } else {
       keyValue = Array.from(node.children).filter((el) => el.classList.contains('active'))[0].innerText;
     }
-    textarea.value += keyValue;
+    
+    if (this.cursor > 0) {
+      let valueBefor = textarea.value;
+      valueBefor = valueBefor.split('');
+      valueBefor.splice(this.cursor, 0, keyValue);
+      textarea.value = valueBefor.join('');
+      textarea.selectionEnd = this.cursor;
+      textarea.selectionStart = this.cursor;
+      textarea.focus();
+    }else{textarea.value += keyValue;}
+    
   }
 
   toggleKeyCase(node = document) {
@@ -619,6 +645,23 @@ class Keyboard {
   getShift() {
     return this.isShift;
   }
+
+  setcursor(p) {
+    this.cursor = p;
+  }
 }
 const keyboard = new Keyboard(CONFIG, CONTROLS);
 keyboard.renderKeyboard();
+
+// ---------------------------------------//
+const aleft = document.querySelector('.ArrowLeft');
+console.log(aleft);
+aleft.onclick = () => {
+  // const te = document.querySelector('.keyboard__textarea');
+  // const teLength = te.value.length;
+  // console.log(teLength);
+  // te.selectionStart = 10;
+  // te.selectionEnd = 10;
+  // te.focus();
+  keyboard.setcursor(10);
+};
