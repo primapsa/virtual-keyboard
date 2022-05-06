@@ -466,6 +466,10 @@ class Keyboard {
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && this.isControl) return;
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && !this.isControl) this.isControl = true;
     if ((keyName === 'CapsLock') && this.isCapsLock) return;
+    if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(keyName)) {
+      this.arrowsDown(keyName);
+      return;
+    }
 
     if (this.isControl && this.isAlt) {
       this.toggleKeyLanguage();
@@ -512,8 +516,9 @@ class Keyboard {
   mouseDown(e) {
     if (e.target.className === 'keyboard__textarea') {
       console.log(e.target.selectionStart);
-      e.target.selectionStart = 10;
-      e.target.selectionEnd = 10;
+      // e.target.selectionStart = 10;
+      // e.target.selectionEnd = 10;
+      this.cursor = e.target.selectionStart;
     }
     const target = e.target.closest('.key');
     if (!target) return;
@@ -569,6 +574,7 @@ class Keyboard {
 
   printKeyValue(node) {
     const textarea = document.querySelector('.keyboard__textarea');
+    const textareaValueLength = textarea.value.length;
     const keyName = node.classList[1];
     let keyValue = '';
     if (this.controls.includes(keyName)) {
@@ -582,20 +588,65 @@ class Keyboard {
       if (keyName === 'Enter') {
         keyValue = '\n';
       }
+      if (keyName === 'Backspace' && this.cursor > 0) {
+        let textareaValue = textarea.value;
+        if (textareaValue.length <= 0) return;
+        textareaValue = textareaValue.split('');
+        textareaValue.splice(this.cursor - 1, 1);
+        textarea.value = textareaValue.join('');
+        this.cursor -= 1;
+        this.textareaSetCursor();
+        return;
+      }
     } else {
       keyValue = Array.from(node.children).filter((el) => el.classList.contains('active'))[0].innerText;
     }
-    
-    if (this.cursor > 0) {
+
+    if (this.cursor < textareaValueLength) {
+      // cursor print
       let valueBefor = textarea.value;
       valueBefor = valueBefor.split('');
-      valueBefor.splice(this.cursor, 0, keyValue);
+      valueBefor.splice(this.cursor - 1, 0, keyValue);
       textarea.value = valueBefor.join('');
-      textarea.selectionEnd = this.cursor;
-      textarea.selectionStart = this.cursor;
-      textarea.focus();
-    }else{textarea.value += keyValue;}
-    
+      this.cursor += 1;
+      this.textareaSetCursor(this.cursor);
+    } else {
+      textarea.value += keyValue; // usual print
+      this.cursor += 1;
+    }
+  }
+
+  textareaSetCursor() {
+    const textarea = document.querySelector('.keyboard__textarea');
+    textarea.selectionEnd = this.cursor;
+    textarea.selectionStart = this.cursor;
+    textarea.focus();
+  }
+
+  arrowsDown(nodeName) {
+    if (!nodeName) return;
+    const textarea = document.querySelector('.keyboard__textarea');
+    const textareaValueLength = textarea.value.length;
+    if (nodeName === 'ArrowLeft') {
+      if (this.cursor > 0) { this.cursor -= 1; }
+    }
+    if (nodeName === 'ArrowRight') {
+      if (this.cursor < textareaValueLength) { this.cursor += 1; }
+    }
+    if (nodeName === 'ArrowUp') {
+      // if (this.cursor < textareaValueLength) { this.cursor += 1; }
+      if (!textarea.value) return;
+      const lines = textarea.value.split('\n');
+      if (!lines.length) return;
+      console.log(textarea.value.length);
+      console.log(textarea.clientHeight);
+      console.log(textarea.rows);
+      console.log(textarea.clientWidth);
+    }
+    textarea.focus();
+    textarea.selectionEnd = this.cursor;
+    textarea.selectionStart = this.cursor;
+    console.log(`cursor: ${this.cursor}`);
   }
 
   toggleKeyCase(node = document) {
@@ -665,3 +716,12 @@ aleft.onclick = () => {
   // te.focus();
   keyboard.setcursor(10);
 };
+
+// function textareaCurLineNum(obj) {
+//   const rowHeight = obj.clientHeight / obj.rows;
+//   const curHeight = obj.createTextRange().boundingHeight;
+//   return parseInt(curHeight / rowHeight) + (obj.value != '' ? 1 : 0);
+// } function cleanForm() {
+//   document.getElementById('cs').value = document.getElementById('ta').value.split('\n').length;
+//   setTimeout('cleanForm();', 500);
+// } cleanForm();
