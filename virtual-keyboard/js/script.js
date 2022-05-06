@@ -588,13 +588,22 @@ class Keyboard {
       if (keyName === 'Enter') {
         keyValue = '\n';
       }
-      if (keyName === 'Backspace' && this.cursor > 0) {
+      if (keyName === 'Backspace' && this.cursor >= 0) {
         let textareaValue = textarea.value;
-        if (textareaValue.length <= 0) return;
         textareaValue = textareaValue.split('');
+        if (!textareaValue[this.cursor - 1]) return;
         textareaValue.splice(this.cursor - 1, 1);
         textarea.value = textareaValue.join('');
         this.cursor -= 1;
+        this.textareaSetCursor();
+        return;
+      }
+      if (keyName === 'Delete' && this.cursor >= 0) {
+        let textareaValue = textarea.value;
+        textareaValue = textareaValue.split('');
+        if (!textareaValue[this.cursor]) return;
+        textareaValue.splice(this.cursor, 1);
+        textarea.value = textareaValue.join('');
         this.textareaSetCursor();
         return;
       }
