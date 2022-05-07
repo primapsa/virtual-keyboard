@@ -121,3 +121,8 @@ body {
   border-radius: 100%;
   background-color: chartreuse;
 }
+
+.unvisible {
+  overflow-wrap: break-word;
+  padding: 1px;
+}

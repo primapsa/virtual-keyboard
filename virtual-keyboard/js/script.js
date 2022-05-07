@@ -410,6 +410,7 @@ class Keyboard {
     this.printKeyValue = this.printKeyValue.bind(this);
     this.keyCase = 'lower';
     this.cursor = 0;
+    this.rows = 0;
   }
 
   initialDom() {
@@ -434,7 +435,7 @@ class Keyboard {
       });
       keysLine += `<div class="keyboard-line">${content}</div>`;
     });
-    keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea"></textarea></div><div class="keyboard__board">${keysLine}</div></div></div></div>`;
+    keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea" wrap="hard" cols="6"></textarea></div><div class="keyboard__board">${keysLine}</div></div></div></div>`;
     // return keysLine;
     document.body.insertAdjacentHTML('afterbegin', keysLine);
   }
@@ -643,19 +644,63 @@ class Keyboard {
       if (this.cursor < textareaValueLength) { this.cursor += 1; }
     }
     if (nodeName === 'ArrowUp') {
-      // if (this.cursor < textareaValueLength) { this.cursor += 1; }
-      if (!textarea.value) return;
-      const lines = textarea.value.split('\n');
-      if (!lines.length) return;
-      console.log(textarea.value.length);
-      console.log(textarea.clientHeight);
-      console.log(textarea.rows);
-      console.log(textarea.clientWidth);
+     
+      this.textareaCountRows();
+      const rows = textarea.value.split('\n');
+
+    
+     
+     
+     
+let sumRows = 0;
+let currentRow = 0;
+      for(let i = 0; i < rows.length; i+=1){
+        sumRows += rows[i].length;
+        if(sumRows >= this.cursor - i){
+          currentRow = i;
+          break;
+        }
+      }    
+let offsetRight = textareaValueLength - this.cursor;
+let offsetLeft = sumRows - rows[currentRow].length;
+let sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
+let mainOffset = 0;
+if(currentRow === 0) return
+let prevRow = rows[currentRow - 1];
+//console.log(rowInRows)
+
+if(sideOffset < prevRow.length) 
+{
+  mainOffset = (prevRow.length - sideOffset) + sideOffset + 1;
+}
+else{mainOffset = sideOffset +1;}
+
+this.cursor = this.cursor - mainOffset;
+
+console.log(`offset left: ${sideOffset} cursor: ${this.cursor}`);
     }
-    textarea.focus();
-    textarea.selectionEnd = this.cursor;
-    textarea.selectionStart = this.cursor;
-    console.log(`cursor: ${this.cursor}`);
+    this.textareaSetCursor();
+  }
+
+  textareaCountRows() {
+    const textarea = document.querySelector('.keyboard__textarea');
+    const textareaValue = textarea.value;
+    if (!textareaValue.length) return;
+    const textareaWidht = textarea.clientWidth;
+    const div = document.createElement('pre');
+    div.classList.add('unvisible');
+    div.style.width = `${textareaWidht}px`;
+    document.body.append(div);
+    div.innerHTML = textareaValue;
+    const breaks = textareaValue.split('\n').length;
+    const idvHeight = parseFloat(div.clientHeight);
+    const divStyles = window.getComputedStyle(div);
+    const lineHeight = parseFloat(divStyles.lineHeight);
+    div.remove();
+    //  let rows = Math.floor(idvHeight / lineHeight);
+    this.rows = breaks;
+  // rows = breaks > rows ? breaks : breaks + rows;
+    // console.log(rows, breaks);
   }
 
   toggleKeyCase(node = document) {
