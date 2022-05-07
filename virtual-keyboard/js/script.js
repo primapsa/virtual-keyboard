@@ -515,12 +515,12 @@ class Keyboard {
   }
 
   mouseDown(e) {
-    if (e.target.className === 'keyboard__textarea') {
-      console.log(e.target.selectionStart);
-      // e.target.selectionStart = 10;
-      // e.target.selectionEnd = 10;
-      this.cursor = e.target.selectionStart;
-    }
+    // if (e.target.className === 'keyboard__textarea') {
+    //   console.log(e.target.selectionStart);
+    //   // e.target.selectionStart = 10;
+    //   // e.target.selectionEnd = 10;
+    //   this.cursor = e.target.selectionStart;
+    // }
     const target = e.target.closest('.key');
     if (!target) return;
     if (target.classList.contains('pressed')) return;
@@ -530,6 +530,10 @@ class Keyboard {
     const targetName = target.classList[1];
     if (targetName === 'CapsLock' && !this.isCapsLock) {
       this.toggleCapsCase();
+    }
+    if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(targetName)) {
+      setTimeout(() => { this.arrowsDown(targetName); }, 0);
+      return;
     }
     if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && !this.isShift) {
       this.isShift = true;
@@ -564,13 +568,20 @@ class Keyboard {
     // if (!target) return;
     // target.classList.remove('pressed');
   }
+  cursorStartPoint(e){
+    const target = e.target;
+    console.log(target.tagName)
+    if(target.tagName!=='TEXTAREA') return;
+    this.cursor = target.selectionStart;
 
+  }
   renderKeyboard() {
     this.initialDom();
     document.addEventListener('keydown', this.keyDown.bind(this));
     document.addEventListener('keyup', this.keyUp.bind(this));
     document.addEventListener('mousedown', this.mouseDown.bind(this));
     document.addEventListener('mouseup', this.mouseUp.bind(this));
+    document.addEventListener('click', this.cursorStartPoint.bind(this));
   }
 
   printKeyValue(node) {
@@ -581,10 +592,11 @@ class Keyboard {
     if (this.controls.includes(keyName)) {
       // controls; dont print in textarea
       if (keyName === 'Space') {
-        keyValue = ' ';
+        keyValue = '\xa0';
       }
       if (keyName === 'Tab') {
-        keyValue = '    ';
+        keyValue = '\xa0\xa0\xa0\xa0';
+        this.cursor += 3;
       }
       if (keyName === 'Enter') {
         keyValue = '\n';
@@ -616,7 +628,7 @@ class Keyboard {
       // cursor print
       let valueBefor = textarea.value;
       valueBefor = valueBefor.split('');
-      valueBefor.splice(this.cursor - 1, 0, keyValue);
+      valueBefor.splice(this.cursor, 0, keyValue);
       textarea.value = valueBefor.join('');
       this.cursor += 1;
       this.textareaSetCursor(this.cursor);
@@ -660,16 +672,16 @@ class Keyboard {
       const offsetLeft = sumRows - rows[currentRow].length;
       const sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
       let mainOffset = 0;
-      if (currentRow === 0) return;
-      const prevRow = rows[currentRow - 1];
+      if (currentRow !== 0) {
+        const prevRow = rows[currentRow - 1];
 
-      if (sideOffset < prevRow.length) {
-        mainOffset = (prevRow.length - sideOffset) + sideOffset + 1;
-      } else { mainOffset = sideOffset + 1; }
+        if (sideOffset < prevRow.length) {
+          mainOffset = (prevRow.length - sideOffset) + sideOffset + 1;
+        } else { mainOffset = sideOffset + 1; }
 
-      this.cursor -= mainOffset;
-
-      //console.log(`offset left: ${sideOffset} cursor: ${this.cursor}`);
+        this.cursor -= mainOffset;
+      }
+      // console.log(`offset left: ${sideOffset} cursor: ${this.cursor}`);
     }
     if (nodeName === 'ArrowDown') {
       const rows = textarea.value.split('\n');
@@ -682,25 +694,19 @@ class Keyboard {
           break;
         }
       }
-      if(currentRow === rows.length - 1) return
-      const offsetRight = textareaValueLength - this.cursor;
-      const offsetLeft = sumRows - rows[currentRow].length;
-      const sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
-      const currentRowLength = rows[currentRow].length;
-      let mainOffset = 0;
-    
-      const nextRow = rows[currentRow + 1];
-      if (nextRow === rows.length) return;
+      if (currentRow !== rows.length - 1) {
+        const offsetRight = textareaValueLength - this.cursor;
+        const offsetLeft = sumRows - rows[currentRow].length;
+        const sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
+        const currentRowLength = rows[currentRow].length;
+        let mainOffset = 0;
+        const nextRow = rows[currentRow + 1];
 
-      if (sideOffset > nextRow.length) {
-
-        mainOffset = (currentRowLength - sideOffset) + nextRow.length + 1;
-      } else 
-      { mainOffset = sideOffset + 1 + (currentRowLength - sideOffset) }
-
-      this.cursor += mainOffset;
-
-      console.log(`offset left: ${sideOffset} cursor: ${this.cursor} roes ${rows.length}` );
+        if (sideOffset > nextRow.length) {
+          mainOffset = (currentRowLength - sideOffset) + nextRow.length + 1;
+        } else { mainOffset = sideOffset + 1 + (currentRowLength - sideOffset); }
+        this.cursor += mainOffset;
+      }
     }
     this.textareaSetCursor();
   }
@@ -780,25 +786,3 @@ class Keyboard {
 }
 const keyboard = new Keyboard(CONFIG, CONTROLS);
 keyboard.renderKeyboard();
-
-// ---------------------------------------//
-const aleft = document.querySelector('.ArrowLeft');
-console.log(aleft);
-aleft.onclick = () => {
-  // const te = document.querySelector('.keyboard__textarea');
-  // const teLength = te.value.length;
-  // console.log(teLength);
-  // te.selectionStart = 10;
-  // te.selectionEnd = 10;
-  // te.focus();
-  keyboard.setcursor(10);
-};
-
-// function textareaCurLineNum(obj) {
-//   const rowHeight = obj.clientHeight / obj.rows;
-//   const curHeight = obj.createTextRange().boundingHeight;
-//   return parseInt(curHeight / rowHeight) + (obj.value != '' ? 1 : 0);
-// } function cleanForm() {
-//   document.getElementById('cs').value = document.getElementById('ta').value.split('\n').length;
-//   setTimeout('cleanForm();', 500);
-// } cleanForm();
