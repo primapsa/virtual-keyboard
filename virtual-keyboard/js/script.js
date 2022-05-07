@@ -644,40 +644,63 @@ class Keyboard {
       if (this.cursor < textareaValueLength) { this.cursor += 1; }
     }
     if (nodeName === 'ArrowUp') {
-     
       this.textareaCountRows();
       const rows = textarea.value.split('\n');
 
-    
-     
-     
-     
-let sumRows = 0;
-let currentRow = 0;
-      for(let i = 0; i < rows.length; i+=1){
+      let sumRows = 0;
+      let currentRow = 0;
+      for (let i = 0; i < rows.length; i += 1) {
         sumRows += rows[i].length;
-        if(sumRows >= this.cursor - i){
+        if (sumRows >= this.cursor - i) {
           currentRow = i;
           break;
         }
-      }    
-let offsetRight = textareaValueLength - this.cursor;
-let offsetLeft = sumRows - rows[currentRow].length;
-let sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
-let mainOffset = 0;
-if(currentRow === 0) return
-let prevRow = rows[currentRow - 1];
-//console.log(rowInRows)
+      }
+      const offsetRight = textareaValueLength - this.cursor;
+      const offsetLeft = sumRows - rows[currentRow].length;
+      const sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
+      let mainOffset = 0;
+      if (currentRow === 0) return;
+      const prevRow = rows[currentRow - 1];
 
-if(sideOffset < prevRow.length) 
-{
-  mainOffset = (prevRow.length - sideOffset) + sideOffset + 1;
-}
-else{mainOffset = sideOffset +1;}
+      if (sideOffset < prevRow.length) {
+        mainOffset = (prevRow.length - sideOffset) + sideOffset + 1;
+      } else { mainOffset = sideOffset + 1; }
 
-this.cursor = this.cursor - mainOffset;
+      this.cursor -= mainOffset;
 
-console.log(`offset left: ${sideOffset} cursor: ${this.cursor}`);
+      //console.log(`offset left: ${sideOffset} cursor: ${this.cursor}`);
+    }
+    if (nodeName === 'ArrowDown') {
+      const rows = textarea.value.split('\n');
+      let sumRows = 0;
+      let currentRow = 0;
+      for (let i = 0; i < rows.length; i += 1) {
+        sumRows += rows[i].length;
+        if (sumRows >= this.cursor - i) {
+          currentRow = i;
+          break;
+        }
+      }
+      if(currentRow === rows.length - 1) return
+      const offsetRight = textareaValueLength - this.cursor;
+      const offsetLeft = sumRows - rows[currentRow].length;
+      const sideOffset = textareaValueLength - (offsetRight + offsetLeft + currentRow);
+      const currentRowLength = rows[currentRow].length;
+      let mainOffset = 0;
+    
+      const nextRow = rows[currentRow + 1];
+      if (nextRow === rows.length) return;
+
+      if (sideOffset > nextRow.length) {
+
+        mainOffset = (currentRowLength - sideOffset) + nextRow.length + 1;
+      } else 
+      { mainOffset = sideOffset + 1 + (currentRowLength - sideOffset) }
+
+      this.cursor += mainOffset;
+
+      console.log(`offset left: ${sideOffset} cursor: ${this.cursor} roes ${rows.length}` );
     }
     this.textareaSetCursor();
   }
