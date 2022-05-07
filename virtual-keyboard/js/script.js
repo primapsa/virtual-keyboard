@@ -588,6 +588,7 @@ class Keyboard {
     const textarea = document.querySelector('.keyboard__textarea');
     const textareaValueLength = textarea.value.length;
     const keyName = node.classList[1];
+    let cursorValue = 1;
     let keyValue = '';
     if (this.controls.includes(keyName)) {
       // controls; dont print in textarea
@@ -595,8 +596,8 @@ class Keyboard {
         keyValue = '\xa0';
       }
       if (keyName === 'Tab') {
-        keyValue = '\xa0\xa0\xa0\xa0';
-        this.cursor += 3;
+        keyValue = '\xa0\xa0\xa0\xa0';   
+        cursorValue = 4;     
       }
       if (keyName === 'Enter') {
         keyValue = '\n';
@@ -629,12 +630,12 @@ class Keyboard {
       let valueBefor = textarea.value;
       valueBefor = valueBefor.split('');
       valueBefor.splice(this.cursor, 0, keyValue);
-      textarea.value = valueBefor.join('');
-      this.cursor += 1;
+      textarea.value = valueBefor.join('');      
+      this.cursor += cursorValue;
       this.textareaSetCursor(this.cursor);
     } else {
       textarea.value += keyValue; // usual print
-      this.cursor += 1;
+      this.cursor += cursorValue;
     }
   }
 
