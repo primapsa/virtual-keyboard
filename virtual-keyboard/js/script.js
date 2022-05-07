@@ -568,13 +568,14 @@ class Keyboard {
     // if (!target) return;
     // target.classList.remove('pressed');
   }
-  cursorStartPoint(e){
-    const target = e.target;
-    console.log(target.tagName)
-    if(target.tagName!=='TEXTAREA') return;
-    this.cursor = target.selectionStart;
 
+  cursorStartPoint(e) {
+    const { target } = e;
+    console.log(target.tagName);
+    if (target.tagName !== 'TEXTAREA') return;
+    this.cursor = target.selectionStart;
   }
+
   renderKeyboard() {
     this.initialDom();
     document.addEventListener('keydown', this.keyDown.bind(this));
@@ -586,6 +587,7 @@ class Keyboard {
 
   printKeyValue(node) {
     const textarea = document.querySelector('.keyboard__textarea');
+    const dontPrintControls = ['ShiftLeft', 'CapsLock', 'ControlLeft', 'MetaLeft', 'AltLeft', 'AltRight', 'ControlRight', 'ShiftRight'];
     const textareaValueLength = textarea.value.length;
     const keyName = node.classList[1];
     let cursorValue = 1;
@@ -596,8 +598,8 @@ class Keyboard {
         keyValue = '\xa0';
       }
       if (keyName === 'Tab') {
-        keyValue = '\xa0\xa0\xa0\xa0';   
-        cursorValue = 4;     
+        keyValue = '\xa0\xa0\xa0\xa0';
+        cursorValue = 4;
       }
       if (keyName === 'Enter') {
         keyValue = '\n';
@@ -630,12 +632,15 @@ class Keyboard {
       let valueBefor = textarea.value;
       valueBefor = valueBefor.split('');
       valueBefor.splice(this.cursor, 0, keyValue);
-      textarea.value = valueBefor.join('');      
-      this.cursor += cursorValue;
-      this.textareaSetCursor(this.cursor);
+      textarea.value = valueBefor.join('');
+      // this.cursor += cursorValue;
+      // this.textareaSetCursor(this.cursor);
     } else {
       textarea.value += keyValue; // usual print
+    }
+    if (!dontPrintControls.includes(keyName)) {
       this.cursor += cursorValue;
+      this.textareaSetCursor(this.cursor);
     }
   }
 
