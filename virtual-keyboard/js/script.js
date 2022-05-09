@@ -547,7 +547,9 @@ class Keyboard {
     if (this.isControl && this.isAlt) {
       this.toggleKeyLanguage();
     }
-    this.printKeyValue(target);
+   
+    setTimeout(()=>{ this.printKeyValue(target)},0);
+    
   }
 
   mouseUp(e) {
@@ -643,7 +645,7 @@ class Keyboard {
     }
     if (!dontPrintControls.includes(keyName)) {
       this.cursor += cursorValue;
-      this.textareaSetCursor(this.cursor);
+      this.textareaSetCursor();
     }
     
   }
@@ -723,7 +725,7 @@ class Keyboard {
     this.textareaSetCursor();
   }
 
-  tx2() {
+  addAdditionalBreak() {
     const textarea = document.querySelector('.keyboard__textarea');
     let v1 = textarea.value;
     v1 = v1.split('\n');
@@ -738,10 +740,9 @@ class Keyboard {
       }
     });
 
-    const v2 = v1.join('');
+    v1= v1.join('');
     textarea.value = v2;
-    this.cursor += 1;
-    console.log(this.cursor);
+    this.cursor += 1;  
     this.textareaSetCursor();
   }
 

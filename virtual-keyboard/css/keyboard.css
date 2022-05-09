@@ -126,3 +126,7 @@ body {
   width: 730px;
   visibility: hidden;
 }
+
+textarea {
+  outline: none;
+}
