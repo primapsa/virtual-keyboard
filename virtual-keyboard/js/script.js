@@ -468,6 +468,7 @@ class Keyboard {
     if ((keyName === 'ControlLeft' || keyName === 'ControlRight') && !this.isControl) this.isControl = true;
     if ((keyName === 'CapsLock') && this.isCapsLock) return;
     if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(keyName)) {
+      keyPressed.classList.add('pressed');
       this.arrowsDown(keyName);
       return;
     }
