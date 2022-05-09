@@ -453,7 +453,7 @@ class Keyboard {
   keyDown(e) {
     let { keyCode } = e;
     keyCode = Number(keyCode);
-    if (!(keyCode >= 8 && keyCode <= 220)) return;
+    if (!(keyCode >= 8 && keyCode <= 222)) return;
     e.preventDefault();
     const keyPressed = document.querySelector(`.${e.code}`);
 
@@ -492,7 +492,7 @@ class Keyboard {
   keyUp(e) {
     let { keyCode } = e;
     keyCode = Number(keyCode);
-    if (!(keyCode >= 8 && keyCode <= 220)) return;
+    if (!(keyCode >= 8 && keyCode <= 222)) return;
     e.preventDefault();
     const keyPressed = document.querySelector(`.${e.code}`);
 
