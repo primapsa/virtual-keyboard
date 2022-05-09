@@ -436,26 +436,25 @@ class Keyboard {
       keysLine += `<div class="keyboard-line">${content}</div>`;
     });
     keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea" cols="2" wrap="hard"></textarea></div><div class="keyboard__board">${keysLine}</div></div><div class="info"><p>Клавиатура создана в операционной системе Windows</p><p>Для переключения языка комбинация:  ctrl + alt</p></div></div><canvas class="canvas"></canvas></div>`;
-    // return keysLine;
     document.body.insertAdjacentHTML('afterbegin', keysLine);
   }
 
   getLanguage() {
-    return localStorage.getItem('lang') || 'en';
+    return localStorage.getItem('lang') || this.language;
   }
 
   toggleLanguage() {
     let language = localStorage.getItem('lang');
     language = language === 'en' ? 'ru' : 'en';
+    this.language = language;
     localStorage.setItem('lang', language);
   }
 
   keyDown(e) {
-    let { keyCode } = e;  
+    let { keyCode } = e;
     keyCode = Number(keyCode);
-    e.preventDefault()
-    if (!(keyCode >= 8 && keyCode <= 222)) return;   
-   
+    e.preventDefault();
+    if (!(keyCode >= 8 && keyCode <= 222)) return;
     const keyPressed = document.querySelector(`.${e.code}`);
 
     if (!keyPressed) return;
@@ -520,12 +519,6 @@ class Keyboard {
   }
 
   mouseDown(e) {
-    // if (e.target.className === 'keyboard__textarea') {
-    //   console.log(e.target.selectionStart);
-    //   // e.target.selectionStart = 10;
-    //   // e.target.selectionEnd = 10;
-    //   this.cursor = e.target.selectionStart;
-    // }
     const target = e.target.closest('.key');
     if (!target) return;
     if (target.classList.contains('pressed')) return;
@@ -550,35 +543,26 @@ class Keyboard {
     if (this.isControl && this.isAlt) {
       this.toggleKeyLanguage();
     }
-   
-    setTimeout(()=>{ this.printKeyValue(target)},0);
-    
+    setTimeout(() => { this.printKeyValue(target); }, 0);
   }
 
-  mouseUp(e) {
+  mouseUp() {
     const target = this.mouseTarget;
     this.mouseTarget = null;
     if (!target) return;
-    console.log(target);
     const targetName = target.classList[1];
     target.classList.remove('pressed');
-    // const keys = document.querySelectorAll('.pressed');
-    // if (!keys) return;
-    // keys.forEach((key) => key.classList.remove('pressed'));
+
     if ((targetName === 'ShiftLeft' || targetName === 'ShiftRight') && this.isShift) {
       this.toggleKeyCase();
       this.isShift = false;
     }
     if ((targetName === 'ControlLeft' || targetName === 'ControlRight') && this.isControl) this.isControl = false;
     if ((targetName === 'AltLeft' || targetName === 'AltRight') && this.isAlt) this.isAlt = false;
-    // const target = e.target.closest('.key');
-    // if (!target) return;
-    // target.classList.remove('pressed');
   }
 
   cursorStartPoint(e) {
     const { target } = e;
-    console.log(target.tagName);
     if (target.tagName !== 'TEXTAREA') return;
     this.cursor = target.selectionStart;
   }
@@ -596,10 +580,10 @@ class Keyboard {
     const textarea = document.querySelector('.keyboard__textarea');
     const dontPrintControls = ['ShiftLeft', 'CapsLock', 'ControlLeft', 'MetaLeft', 'AltLeft', 'AltRight', 'ControlRight', 'ShiftRight'];
     const textareaValueLength = textarea.value.length;
-    const keyName = node.classList[1]; 
+    const keyName = node.classList[1];
     let cursorValue = 1;
     let keyValue = '';
-    if (this.controls.includes(keyName)) {     
+    if (this.controls.includes(keyName)) {
       if (keyName === 'Space') {
         keyValue = '\xa0';
       }
@@ -634,23 +618,18 @@ class Keyboard {
     }
 
     if (this.cursor < textareaValueLength) {
-     
       let valueBefor = textarea.value;
       valueBefor = valueBefor.split('');
       valueBefor.splice(this.cursor, 0, keyValue);
       textarea.value = valueBefor.join('');
-   
     } else {
-     
       textarea.value += keyValue;
       this.textareaSetCursor();
-
     }
     if (!dontPrintControls.includes(keyName)) {
       this.cursor += cursorValue;
       this.textareaSetCursor();
     }
-    
   }
 
   textareaSetCursor() {
@@ -666,16 +645,12 @@ class Keyboard {
     const textareaValueLength = textarea.value.length;
     if (nodeName === 'ArrowLeft') {
       if (this.cursor > 0) { this.cursor -= 1; }
-      console.log(`arrow ${this.cursor} selection ${textarea.selectionStart}`);
     }
     if (nodeName === 'ArrowRight') {
       if (this.cursor < textareaValueLength) { this.cursor += 1; }
     }
     if (nodeName === 'ArrowUp') {
-      // this.textareaCountRows();
       const rows = textarea.value.split('\n');
-      // const rows = this.textareaRowsCount();
-      console.log(rows);
       let sumRows = 0;
       let currentRow = 0;
       for (let i = 0; i < rows.length; i += 1) {
@@ -698,7 +673,6 @@ class Keyboard {
 
         this.cursor -= mainOffset;
       }
-      // console.log(`offset left: ${sideOffset} cursor: ${this.cursor}`);
     }
     if (nodeName === 'ArrowDown') {
       const rows = textarea.value.split('\n');
@@ -718,7 +692,6 @@ class Keyboard {
         const currentRowLength = rows[currentRow].length;
         let mainOffset = 0;
         const nextRow = rows[currentRow + 1];
-
         if (sideOffset > nextRow.length) {
           mainOffset = (currentRowLength - sideOffset) + nextRow.length + 1;
         } else { mainOffset = sideOffset + 1 + (currentRowLength - sideOffset); }
@@ -726,61 +699,6 @@ class Keyboard {
       }
     }
     this.textareaSetCursor();
-  }
-
-  addAdditionalBreak() {
-    const textarea = document.querySelector('.keyboard__textarea');
-    let v1 = textarea.value;
-    v1 = v1.split('\n');
-    const canvas = document.querySelector('.canvas');
-    const ctx = canvas.getContext('2d');
-    v1.forEach((el, i, a) => {
-      const canvasLength = ctx.measureText(el);
-      console.log(canvasLength);
-      if (canvasLength.width > 540) {
-        el += '\n';
-        a[i] = el;
-      }
-    });
-
-    v1= v1.join('');
-    textarea.value = v2;
-    this.cursor += 1;  
-    this.textareaSetCursor();
-  }
-
-  textareaRowsCount() {
-    const textarea = document.querySelector('.keyboard__textarea');
-    const textareaValue = textarea.value;
-    const canvas = document.querySelector('.canvas');
-    const ctx = canvas.getContext('2d');
-    let splitted = textareaValue.split('\n');
-    // console.log(splitted)
-    const rowCount = 0;
-    if (splitted.length) {
-      splitted.forEach((row, ind, arr) => {
-        const canvasLength = ctx.measureText(row);
-        console.log(canvasLength.width);
-        if (canvasLength.width > 475) {
-          row += '**';
-          row += '\r\n';
-
-          arr[ind] = row;
-        }
-        // const canvasRows = Math.trunc(canvasLength.width / 474);
-        // if (canvasRows > 0) rowCount += canvasRows;
-      });
-      // textarea.value = textareaValue2;
-      // this.textareaSetCursor(this.cursor);
-    }
-    console.log(splitted);
-    console.log(this.cursor);
-    console.log(`selection ${textarea.selectionStart}`);
-    splitted = splitted.join('');
-    textarea.value = splitted;
-
-    // this.rowsCount = rowCount + splitted.length;
-    // return splitted;
   }
 
   toggleKeyCase(node = document) {
@@ -794,7 +712,7 @@ class Keyboard {
 
   toggleCapsCase() {
     document.querySelector('.CapsLock').classList.toggle('on');
-
+    this.toggleCase();
     const rows = document.querySelectorAll('.keyboard-line');
     rows.forEach((row, index) => {
       if (index > 0) this.toggleKeyCase(row);
@@ -806,11 +724,9 @@ class Keyboard {
     activeKeys.forEach((key) => {
       let toggleNode = null;
       Array.from(key.children).forEach((child) => {
-        // console.log(child.classList.contains(this.keyCase))
         if (child.classList.contains(this.keyCase)
         && !child.classList.contains(this.getLanguage())) {
           toggleNode = child;
-          // console.log(this.keyCase)
         }
         child.classList.remove('active');
       });
