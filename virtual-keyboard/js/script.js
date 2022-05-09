@@ -435,7 +435,7 @@ class Keyboard {
       });
       keysLine += `<div class="keyboard-line">${content}</div>`;
     });
-    keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea" wrap="hard" cols="6"></textarea></div><div class="keyboard__board">${keysLine}</div></div></div></div>`;
+    keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea" cols="2" wrap="hard"></textarea></div><div class="keyboard__board">${keysLine}</div></div></div><canvas class="canvas"></canvas></div>`;
     // return keysLine;
     document.body.insertAdjacentHTML('afterbegin', keysLine);
   }
@@ -592,8 +592,7 @@ class Keyboard {
     const keyName = node.classList[1];
     let cursorValue = 1;
     let keyValue = '';
-    if (this.controls.includes(keyName)) {
-      // controls; dont print in textarea
+    if (this.controls.includes(keyName)) {     
       if (keyName === 'Space') {
         keyValue = '\xa0';
       }
@@ -628,20 +627,23 @@ class Keyboard {
     }
 
     if (this.cursor < textareaValueLength) {
-      // cursor print
+     
       let valueBefor = textarea.value;
       valueBefor = valueBefor.split('');
       valueBefor.splice(this.cursor, 0, keyValue);
       textarea.value = valueBefor.join('');
-      // this.cursor += cursorValue;
-      // this.textareaSetCursor(this.cursor);
+   
     } else {
-      textarea.value += keyValue; // usual print
+     
+      textarea.value += keyValue;
+      this.textareaSetCursor();
+
     }
     if (!dontPrintControls.includes(keyName)) {
       this.cursor += cursorValue;
       this.textareaSetCursor(this.cursor);
     }
+    
   }
 
   textareaSetCursor() {
@@ -657,14 +659,16 @@ class Keyboard {
     const textareaValueLength = textarea.value.length;
     if (nodeName === 'ArrowLeft') {
       if (this.cursor > 0) { this.cursor -= 1; }
+      console.log(`arrow ${this.cursor} selection ${textarea.selectionStart}`);
     }
     if (nodeName === 'ArrowRight') {
       if (this.cursor < textareaValueLength) { this.cursor += 1; }
     }
     if (nodeName === 'ArrowUp') {
-      this.textareaCountRows();
+      // this.textareaCountRows();
       const rows = textarea.value.split('\n');
-
+      // const rows = this.textareaRowsCount();
+      console.log(rows);
       let sumRows = 0;
       let currentRow = 0;
       for (let i = 0; i < rows.length; i += 1) {
@@ -717,25 +721,60 @@ class Keyboard {
     this.textareaSetCursor();
   }
 
-  textareaCountRows() {
+  tx2() {
+    const textarea = document.querySelector('.keyboard__textarea');
+    let v1 = textarea.value;
+    v1 = v1.split('\n');
+    const canvas = document.querySelector('.canvas');
+    const ctx = canvas.getContext('2d');
+    v1.forEach((el, i, a) => {
+      const canvasLength = ctx.measureText(el);
+      console.log(canvasLength);
+      if (canvasLength.width > 540) {
+        el += '\n';
+        a[i] = el;
+      }
+    });
+
+    const v2 = v1.join('');
+    textarea.value = v2;
+    this.cursor += 1;
+    console.log(this.cursor);
+    this.textareaSetCursor();
+  }
+
+  textareaRowsCount() {
     const textarea = document.querySelector('.keyboard__textarea');
     const textareaValue = textarea.value;
-    if (!textareaValue.length) return;
-    const textareaWidht = textarea.clientWidth;
-    const div = document.createElement('pre');
-    div.classList.add('unvisible');
-    div.style.width = `${textareaWidht}px`;
-    document.body.append(div);
-    div.innerHTML = textareaValue;
-    const breaks = textareaValue.split('\n').length;
-    const idvHeight = parseFloat(div.clientHeight);
-    const divStyles = window.getComputedStyle(div);
-    const lineHeight = parseFloat(divStyles.lineHeight);
-    div.remove();
-    //  let rows = Math.floor(idvHeight / lineHeight);
-    this.rows = breaks;
-  // rows = breaks > rows ? breaks : breaks + rows;
-    // console.log(rows, breaks);
+    const canvas = document.querySelector('.canvas');
+    const ctx = canvas.getContext('2d');
+    let splitted = textareaValue.split('\n');
+    // console.log(splitted)
+    const rowCount = 0;
+    if (splitted.length) {
+      splitted.forEach((row, ind, arr) => {
+        const canvasLength = ctx.measureText(row);
+        console.log(canvasLength.width);
+        if (canvasLength.width > 475) {
+          row += '**';
+          row += '\r\n';
+
+          arr[ind] = row;
+        }
+        // const canvasRows = Math.trunc(canvasLength.width / 474);
+        // if (canvasRows > 0) rowCount += canvasRows;
+      });
+      // textarea.value = textareaValue2;
+      // this.textareaSetCursor(this.cursor);
+    }
+    console.log(splitted);
+    console.log(this.cursor);
+    console.log(`selection ${textarea.selectionStart}`);
+    splitted = splitted.join('');
+    textarea.value = splitted;
+
+    // this.rowsCount = rowCount + splitted.length;
+    // return splitted;
   }
 
   toggleKeyCase(node = document) {
