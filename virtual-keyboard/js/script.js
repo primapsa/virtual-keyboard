@@ -435,7 +435,7 @@ class Keyboard {
       });
       keysLine += `<div class="keyboard-line">${content}</div>`;
     });
-    keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea" cols="2" wrap="hard"></textarea></div><div class="keyboard__board">${keysLine}</div></div></div><canvas class="canvas"></canvas></div>`;
+    keysLine = `<div class="wrapper"><div class="container"><div class="keyboard"><div class="keyboard__display"><textarea class="keyboard__textarea" cols="2" wrap="hard"></textarea></div><div class="keyboard__board">${keysLine}</div></div><div class="info"><p>Клавиатура создана в операционной системе Windows</p><p>Для переключения языка комбинация:  ctrl + alt</p></div></div><canvas class="canvas"></canvas></div>`;
     // return keysLine;
     document.body.insertAdjacentHTML('afterbegin', keysLine);
   }
@@ -451,10 +451,11 @@ class Keyboard {
   }
 
   keyDown(e) {
-    let { keyCode } = e;
+    let { keyCode } = e;  
     keyCode = Number(keyCode);
-    if (!(keyCode >= 8 && keyCode <= 222)) return;
-    e.preventDefault();
+    e.preventDefault()
+    if (!(keyCode >= 8 && keyCode <= 222)) return;   
+   
     const keyPressed = document.querySelector(`.${e.code}`);
 
     if (!keyPressed) return;
@@ -590,7 +591,7 @@ class Keyboard {
     const textarea = document.querySelector('.keyboard__textarea');
     const dontPrintControls = ['ShiftLeft', 'CapsLock', 'ControlLeft', 'MetaLeft', 'AltLeft', 'AltRight', 'ControlRight', 'ShiftRight'];
     const textareaValueLength = textarea.value.length;
-    const keyName = node.classList[1];
+    const keyName = node.classList[1]; 
     let cursorValue = 1;
     let keyValue = '';
     if (this.controls.includes(keyName)) {     
