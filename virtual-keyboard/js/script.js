@@ -474,7 +474,10 @@ class Keyboard {
       return;
     }
 
-    if (this.isControl && this.isAlt) {
+    if (this.isControl && ((keyName === 'AltLeft' || keyName === 'AltRight'))) {
+      this.toggleKeyLanguage();
+    }
+    if (this.isAlt && (keyName === 'ControlLeft' || keyName === 'ControlRight')) {
       this.toggleKeyLanguage();
     }
 
